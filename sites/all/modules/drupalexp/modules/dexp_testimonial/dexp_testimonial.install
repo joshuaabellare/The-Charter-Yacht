@@ -1,0 +1,41 @@
+<?php
+include 'dexp_testimonial.field_base.inc';
+include 'dexp_testimonial.field_instance.inc';
+function dexp_testimonial_install() {
+  // Make sure a testimonial content type doesn't already exist
+	$content_type = 'testimonial';
+  if (!in_array($content_type, node_type_get_names())) {
+    // Content type
+    $type = array(
+        'type' => $content_type,
+        'name' => t('Testimonial'),
+        'base' => 'node_content',
+        'description' => '',
+        'has_title' => '1',
+        'title_label' => t('Title'),
+        'help' => '',
+    );
+    $type = node_type_set_defaults($type);
+    node_type_save($type);
+    node_add_body_field($type);
+    // Fields
+    $fields = dexp_testimonial_field_default_field_bases();
+    foreach ($fields as $field) {
+			$field_info = field_info_field($field['field_name']);
+			if(!$field_info){
+				field_create_field($field);
+			}
+    }
+
+    foreach (dexp_testimonial_field_default_field_instances() as $instance) {
+      $instance['entity_type'] = 'node';
+      $instance['bundle'] = $content_type;
+			$field_instance = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+			if($field_instance){
+				field_update_instance($instance);
+			}else{
+				field_create_instance($instance);
+			}
+    }
+  }
+}

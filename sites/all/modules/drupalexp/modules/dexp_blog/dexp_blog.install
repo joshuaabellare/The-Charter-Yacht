@@ -1,0 +1,184 @@
+<?php
+require_once 'dexp_blog.field_base.inc';
+require_once 'dexp_blog.field_instance.inc';
+function dexp_blog_install() {
+  // Make sure a testimonial content type doesn't already exist
+  if (!in_array('article', node_type_get_names())) {
+    // Content type
+    $type = array(
+        'type' => 'article',
+        'name' => t('Article'),
+        'base' => 'node_content',
+        'description' => '',
+        'has_title' => '1',
+        'title_label' => t('Title'),
+        'help' => '',
+    );
+    $type = node_type_set_defaults($type);
+    node_type_save($type);
+    node_add_body_field($type);
+    // Vocabulary
+    $machine_name = 'blog_categories';
+    $help = t('Enter a comma-separated list of words to describe your content.');
+    if (!taxonomy_vocabulary_machine_name_load($machine_name)) {
+      $vocabulary = (object) array(
+                  'name' => t('Blog Categories'),
+                  'description' => t('Blog Categories'),
+                  'machine_name' => $machine_name,
+                  'help' => $help
+      );
+      taxonomy_vocabulary_save($vocabulary);
+    }
+    // Fields
+    $fields = dexp_blog_field_default_field_bases();
+    foreach ($fields as $field) {
+      $field_info = field_info_field($field['field_name']);
+			if(!$field_info){
+				field_create_field($field);
+			}
+    }
+
+    foreach (dexp_blog_field_default_field_instances() as $instance) {
+      $instance['entity_type'] = 'node';
+      $instance['bundle'] = 'article';
+			$field_instance = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+			if($field_instance){
+				field_update_instance($instance);
+			}else{
+				field_create_instance($instance);
+			}
+    }
+  }
+
+   $sql = "INSERT INTO {file_display} (`name`, `weight`, `status`, `settings`) VALUES
+('image__default__file_field_file_default', 0, 0, 0x4e3b),
+('image__default__file_field_file_rendered', 0, 0, 0x4e3b),
+('image__default__file_field_file_table', 0, 0, 0x4e3b),
+('image__default__file_field_file_url_plain', 0, 0, 0x4e3b),
+('image__default__file_field_media_large_icon', 0, 0, 0x4e3b),
+('image__default__file_image', 0, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a31333a22626c6f675f74696d656c696e65223b7d),
+('image__media_large__file_field_file_default', 0, 0, 0x4e3b),
+('image__media_large__file_field_file_rendered', 0, 0, 0x4e3b),
+('image__media_large__file_field_file_table', 0, 0, 0x4e3b),
+('image__media_large__file_field_file_url_plain', 0, 0, 0x4e3b),
+('image__media_large__file_field_media_large_icon', 0, 0, 0x4e3b),
+('image__media_large__file_image', 5, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a31363a22626c6f675f6c617267655f696d616765223b7d),
+('image__media_link__file_field_file_default', 0, 0, 0x4e3b),
+('image__media_link__file_field_file_rendered', 0, 0, 0x4e3b),
+('image__media_link__file_field_file_table', 0, 0, 0x4e3b),
+('image__media_link__file_field_file_url_plain', 0, 0, 0x4e3b),
+('image__media_link__file_field_media_large_icon', 0, 0, 0x4e3b),
+('image__media_link__file_image', 0, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a373a2232363578313930223b7d),
+('image__media_preview__file_field_file_default', 0, 0, 0x4e3b),
+('image__media_preview__file_field_file_rendered', 0, 0, 0x4e3b),
+('image__media_preview__file_field_file_table', 0, 0, 0x4e3b),
+('image__media_preview__file_field_file_url_plain', 0, 0, 0x4e3b),
+('image__media_preview__file_field_media_large_icon', 0, 0, 0x4e3b),
+('image__media_preview__file_image', 5, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a31313a226d656469756d5f626c6f67223b7d),
+('image__media_small__file_field_file_default', 0, 0, 0x4e3b),
+('image__media_small__file_field_file_rendered', 0, 0, 0x4e3b),
+('image__media_small__file_field_file_table', 0, 0, 0x4e3b),
+('image__media_small__file_field_file_url_plain', 0, 0, 0x4e3b),
+('image__media_small__file_field_media_large_icon', 0, 0, 0x4e3b),
+('image__media_small__file_image', 0, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a393a227468756d626e61696c223b7d),
+('video__default__file_field_file_default', 0, 0, 0x4e3b),
+('video__default__file_field_file_rendered', 0, 0, 0x4e3b),
+('video__default__file_field_file_table', 0, 0, 0x4e3b),
+('video__default__file_field_file_url_plain', 0, 0, 0x4e3b),
+('video__default__file_field_media_large_icon', 0, 0, 0x4e3b),
+('video__default__file_image', 0, 0, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a31313a226d656469756d5f626c6f67223b7d),
+('video__default__lightbox2_iframe', 0, 0, 0x4e3b),
+('video__default__lightbox2_image', 0, 0, 0x4e3b),
+('video__default__media_vimeo_image', 2, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a31333a22626c6f675f74696d656c696e65223b7d),
+('video__default__media_vimeo_video', 1, 1, 0x613a31303a7b733a353a227769647468223b733a333a22353032223b733a363a22686569676874223b733a333a22323635223b733a353a22636f6c6f72223b733a303a22223b733a383a2270726f746f636f6c223b733a373a22687474703a2f2f223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a353a227469746c65223b693a313b733a363a2262796c696e65223b693a313b733a383a22706f727472616974223b693a313b733a333a22617069223b693a303b7d),
+('video__default__media_youtube_image', 0, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a31333a22626c6f675f74696d656c696e65223b7d),
+('video__default__media_youtube_video', 0, 1, 0x613a31353a7b733a353a227769647468223b733a333a22353032223b733a363a22686569676874223b733a333a22323635223b733a353a227468656d65223b733a343a226461726b223b733a353a22636f6c6f72223b733a333a22726564223b733a383a226175746f68696465223b733a313a2232223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a383a2273686f77696e666f223b693a313b733a31343a226d6f646573746272616e64696e67223b693a303b733a333a2272656c223b693a313b733a383a226e6f636f6f6b6965223b693a303b733a31363a2270726f746f636f6c5f73706563696679223b693a303b733a383a2270726f746f636f6c223b733a363a2268747470733a223b733a31313a22656e61626c656a73617069223b693a303b733a363a226f726967696e223b733a303a22223b7d),
+('video__media_large__file_field_file_default', 0, 0, 0x4e3b),
+('video__media_large__file_field_file_rendered', 0, 0, 0x4e3b),
+('video__media_large__file_field_file_table', 0, 0, 0x4e3b),
+('video__media_large__file_field_file_url_plain', 0, 0, 0x4e3b),
+('video__media_large__file_field_media_large_icon', 0, 0, 0x4e3b),
+('video__media_large__file_image', 0, 0, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a303a22223b7d),
+('video__media_large__lightbox2_iframe', 0, 0, 0x4e3b),
+('video__media_large__lightbox2_image', 0, 0, 0x4e3b),
+('video__media_large__media_vimeo_image', 2, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a353a226c61726765223b7d),
+('video__media_large__media_vimeo_video', 1, 1, 0x613a31303a7b733a353a227769647468223b733a333a22383730223b733a363a22686569676874223b733a333a22333533223b733a353a22636f6c6f72223b733a303a22223b733a383a2270726f746f636f6c223b733a373a22687474703a2f2f223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a353a227469746c65223b693a313b733a363a2262796c696e65223b693a313b733a383a22706f727472616974223b693a313b733a333a22617069223b693a303b7d),
+('video__media_large__media_youtube_image', 0, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a353a226c61726765223b7d),
+('video__media_large__media_youtube_video', 0, 1, 0x613a31353a7b733a353a227769647468223b733a333a22383730223b733a363a22686569676874223b733a333a22333533223b733a353a227468656d65223b733a343a226461726b223b733a353a22636f6c6f72223b733a333a22726564223b733a383a226175746f68696465223b733a313a2232223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a383a2273686f77696e666f223b693a313b733a31343a226d6f646573746272616e64696e67223b693a303b733a333a2272656c223b693a313b733a383a226e6f636f6f6b6965223b693a303b733a31363a2270726f746f636f6c5f73706563696679223b693a303b733a383a2270726f746f636f6c223b733a363a2268747470733a223b733a31313a22656e61626c656a73617069223b693a303b733a363a226f726967696e223b733a303a22223b7d),
+('video__media_link__file_field_file_default', 0, 0, 0x4e3b),
+('video__media_link__file_field_file_rendered', 0, 0, 0x4e3b),
+('video__media_link__file_field_file_table', 0, 0, 0x4e3b),
+('video__media_link__file_field_file_url_plain', 0, 0, 0x4e3b),
+('video__media_link__file_field_media_large_icon', 0, 0, 0x4e3b),
+('video__media_link__file_image', 0, 0, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a303a22223b7d),
+('video__media_link__lightbox2_iframe', 0, 0, 0x4e3b),
+('video__media_link__lightbox2_image', 0, 0, 0x4e3b),
+('video__media_link__media_vimeo_image', 0, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a373a2232363578313930223b7d),
+('video__media_link__media_vimeo_video', 0, 0, 0x613a31303a7b733a353a227769647468223b733a333a22363430223b733a363a22686569676874223b733a333a22333630223b733a353a22636f6c6f72223b733a303a22223b733a383a2270726f746f636f6c223b733a373a22687474703a2f2f223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a353a227469746c65223b693a313b733a363a2262796c696e65223b693a313b733a383a22706f727472616974223b693a313b733a333a22617069223b693a303b7d),
+('video__media_link__media_youtube_image', 0, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a373a2232363578313930223b7d),
+('video__media_link__media_youtube_video', 0, 0, 0x613a31353a7b733a353a227769647468223b733a333a22363430223b733a363a22686569676874223b733a333a22333930223b733a353a227468656d65223b733a343a226461726b223b733a353a22636f6c6f72223b733a333a22726564223b733a383a226175746f68696465223b733a313a2232223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a383a2273686f77696e666f223b693a313b733a31343a226d6f646573746272616e64696e67223b693a303b733a333a2272656c223b693a313b733a383a226e6f636f6f6b6965223b693a303b733a31363a2270726f746f636f6c5f73706563696679223b693a303b733a383a2270726f746f636f6c223b733a363a2268747470733a223b733a31313a22656e61626c656a73617069223b693a303b733a363a226f726967696e223b733a303a22223b7d),
+('video__media_original__file_field_file_default', 0, 0, 0x4e3b),
+('video__media_original__file_field_file_rendered', 0, 0, 0x4e3b),
+('video__media_original__file_field_file_table', 0, 0, 0x4e3b),
+('video__media_original__file_field_file_url_plain', 0, 0, 0x4e3b),
+('video__media_original__file_field_media_large_icon', 0, 0, 0x4e3b),
+('video__media_original__file_image', 0, 0, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a303a22223b7d),
+('video__media_original__lightbox2_iframe', 0, 0, 0x4e3b),
+('video__media_original__lightbox2_image', 0, 0, 0x4e3b),
+('video__media_original__media_vimeo_image', 2, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a303a22223b7d),
+('video__media_original__media_vimeo_video', 1, 1, 0x613a31303a7b733a353a227769647468223b733a333a22363430223b733a363a22686569676874223b733a333a22333930223b733a353a22636f6c6f72223b733a303a22223b733a383a2270726f746f636f6c223b733a373a22687474703a2f2f223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a353a227469746c65223b693a313b733a363a2262796c696e65223b693a313b733a383a22706f727472616974223b693a313b733a333a22617069223b693a303b7d),
+('video__media_original__media_youtube_image', 0, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a303a22223b7d),
+('video__media_original__media_youtube_video', 0, 1, 0x613a31353a7b733a353a227769647468223b733a333a22363430223b733a363a22686569676874223b733a333a22333930223b733a353a227468656d65223b733a343a226461726b223b733a353a22636f6c6f72223b733a333a22726564223b733a383a226175746f68696465223b733a313a2232223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a383a2273686f77696e666f223b693a313b733a31343a226d6f646573746272616e64696e67223b693a303b733a333a2272656c223b693a313b733a383a226e6f636f6f6b6965223b693a303b733a31363a2270726f746f636f6c5f73706563696679223b693a303b733a383a2270726f746f636f6c223b733a363a2268747470733a223b733a31313a22656e61626c656a73617069223b693a303b733a363a226f726967696e223b733a303a22223b7d),
+('video__media_preview__file_field_file_default', 0, 0, 0x4e3b),
+('video__media_preview__file_field_file_rendered', 0, 0, 0x4e3b),
+('video__media_preview__file_field_file_table', 0, 0, 0x4e3b),
+('video__media_preview__file_field_file_url_plain', 0, 0, 0x4e3b),
+('video__media_preview__file_field_media_large_icon', 0, 0, 0x4e3b),
+('video__media_preview__file_image', 0, 0, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a303a22223b7d),
+('video__media_preview__lightbox2_iframe', 0, 0, 0x4e3b),
+('video__media_preview__lightbox2_image', 0, 0, 0x4e3b),
+('video__media_preview__media_vimeo_image', 2, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a31313a226d656469756d5f626c6f67223b7d),
+('video__media_preview__media_vimeo_video', 0, 1, 0x613a31303a7b733a353a227769647468223b733a333a22333436223b733a363a22686569676874223b733a333a22323334223b733a353a22636f6c6f72223b733a303a22223b733a383a2270726f746f636f6c223b733a373a22687474703a2f2f223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a353a227469746c65223b693a313b733a363a2262796c696e65223b693a313b733a383a22706f727472616974223b693a313b733a333a22617069223b693a303b7d),
+('video__media_preview__media_youtube_image', 0, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a31313a226d656469756d5f626c6f67223b7d),
+('video__media_preview__media_youtube_video', 0, 1, 0x613a31353a7b733a353a227769647468223b733a333a22333436223b733a363a22686569676874223b733a333a22323334223b733a353a227468656d65223b733a343a226461726b223b733a353a22636f6c6f72223b733a333a22726564223b733a383a226175746f68696465223b733a313a2232223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a383a2273686f77696e666f223b693a313b733a31343a226d6f646573746272616e64696e67223b693a303b733a333a2272656c223b693a313b733a383a226e6f636f6f6b6965223b693a303b733a31363a2270726f746f636f6c5f73706563696679223b693a303b733a383a2270726f746f636f6c223b733a363a2268747470733a223b733a31313a22656e61626c656a73617069223b693a303b733a363a226f726967696e223b733a303a22223b7d),
+('video__media_small__file_field_file_default', 0, 0, 0x4e3b),
+('video__media_small__file_field_file_rendered', 0, 0, 0x4e3b),
+('video__media_small__file_field_file_table', 0, 0, 0x4e3b),
+('video__media_small__file_field_file_url_plain', 0, 0, 0x4e3b),
+('video__media_small__file_field_media_large_icon', 0, 0, 0x4e3b),
+('video__media_small__file_image', 0, 0, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a303a22223b7d),
+('video__media_small__lightbox2_iframe', 0, 0, 0x4e3b),
+('video__media_small__lightbox2_image', 0, 0, 0x4e3b),
+('video__media_small__media_vimeo_image', 0, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a393a227468756d626e61696c223b7d),
+('video__media_small__media_vimeo_video', 0, 0, 0x613a31303a7b733a353a227769647468223b733a333a22363430223b733a363a22686569676874223b733a333a22333630223b733a353a22636f6c6f72223b733a303a22223b733a383a2270726f746f636f6c223b733a373a22687474703a2f2f223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a353a227469746c65223b693a313b733a363a2262796c696e65223b693a313b733a383a22706f727472616974223b693a313b733a333a22617069223b693a303b7d),
+('video__media_small__media_youtube_image', 0, 1, 0x613a313a7b733a31313a22696d6167655f7374796c65223b733a393a227468756d626e61696c223b7d),
+('video__media_small__media_youtube_video', 0, 0, 0x613a31353a7b733a353a227769647468223b733a333a22363430223b733a363a22686569676874223b733a333a22333930223b733a353a227468656d65223b733a343a226461726b223b733a353a22636f6c6f72223b733a333a22726564223b733a383a226175746f68696465223b733a313a2232223b733a383a226175746f706c6179223b693a303b733a343a226c6f6f70223b693a303b733a383a2273686f77696e666f223b693a313b733a31343a226d6f646573746272616e64696e67223b693a303b733a333a2272656c223b693a313b733a383a226e6f636f6f6b6965223b693a303b733a31363a2270726f746f636f6c5f73706563696679223b693a303b733a383a2270726f746f636f6c223b733a363a2268747470733a223b733a31313a22656e61626c656a73617069223b693a303b733a363a226f726967696e223b733a303a22223b7d);";
+	db_query($sql);
+  /**	
+  module_load_include('inc', 'file_entity', 'file_entity.file_api');
+  ctools_include('export');
+  
+  $default_image_styles = array(
+    'media_preview' => array('image_style' => 'medium_blog', 
+	'media_large' => 'blog_large_image',
+	'media_link' => '265x190',
+	'media_small' => 'thumbnail',
+	'default' => 'blog_timeline',
+  );
+ 
+  foreach ($default_image_styles as $view_mode => $protystyle) {
+    $display_name = 'image__' . $view_mode . '__file_image';
+    $display = array(
+      'api_version' => 1,
+      'name' => $display_name,
+      'status' => 1,
+      'weight' => 5,
+      'settings' => array('image_style' => $image_style),
+      'export_type' => NULL,
+    );
+		$display = (object) $display;
+		ctools_export_crud_save('file_display', $display);
+  }
+  file_info_cache_clear();
+  **/
+}

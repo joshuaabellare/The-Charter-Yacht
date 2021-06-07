@@ -1,0 +1,11 @@
+name = Dexp Team Members
+description = Provides Team members content type and blocks team
+core = 7.x
+package = DrupalExp
+version = 7.x-1.0
+project = dexp_team_members
+dependencies[] = dexp_grid
+dependencies[] = dexp_views_bxslider
+dependencies[] = image
+dependencies[] = text
+dependencies[] = views

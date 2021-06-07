@@ -1,0 +1,9 @@
+name = Dexp Clients
+core = 7.x
+package = DrupalExp
+version = 7.x-1.0
+project = dexp_clients
+dependencies[] = dexp_views_bxslider
+dependencies[] = image
+dependencies[] = text
+dependencies[] = views

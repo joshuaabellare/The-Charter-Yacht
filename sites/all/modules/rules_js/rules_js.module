@@ -1,0 +1,19 @@
+<?php
+
+/**
+* @file
+* Provides a rules action to execute JavaScript code.
+ */
+
+/**
+ * Implements hook_page_build().
+ */
+function rules_js_page_build(&$page) {
+  // Add inline JS code set with Rules actions.
+  if (!empty($_SESSION['rules_js_code'])) {
+    foreach ($_SESSION['rules_js_code'] as $params) {
+      call_user_func_array('drupal_add_js', $params);
+    }
+    unset($_SESSION['rules_js_code']);
+  }
+}

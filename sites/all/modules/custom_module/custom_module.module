@@ -1,0 +1,117 @@
+<?php
+/**                                                                           
+ * Implements hook_form_alter().                                              
+ */                                                                           
+function custom_module_form_alter(&$form, &$form_state, $form_id) {
+	if ($form_id == 'views_exposed_form'){
+		$view = $form_state['view'];
+		if ($view){
+			//Setting placeholder
+			$form['field_max_capacity_value']['#attributes'] = array('placeholder'=> array(t('Number of Guests')));
+			$form['field_bed_value']['#attributes'] = array('placeholder'=> array(t('Charter Guests')));
+			$form['field_geofield_distance']['#origin_options']['#attributes'] = array('placeholder'=> array(t('Search for location')), 'size'=> array(30));
+			//Cleaning the filter labels
+			unset($form['#info']['field_max_capacity_value']['label']);
+		}
+	}
+	if ($form_id == 'bundled_package_node_form'){
+		$form['#attached']['js'] = array(
+		  drupal_get_path('theme', 'evolve') . '/assets/scripts/custom_form.js',
+		);
+	}	
+	if ($form_id == 'commerce_checkout_form_checkout'){
+		$form['buttons']['continue']['#value'] = 'Validate my event';
+		$form['buttons']['continue']['#attributes']['class'][] = 'full-width uppercase';
+		$form['buttons']['continue']['#submit'][] = 'custom_module_commerce_redirect';
+	}
+}
+/**                                                                           
+ * Implements hook to redirect users to checkout completer after submit on checkout().                                              
+ */  
+function custom_module_commerce_redirect($form, $form_state, &$commands) {
+	ctools_include('ajax');
+    ctools_add_js('ajax-responder');
+    $commands[] = ctools_ajax_command_redirect('checkout/' . $form_state['order']->order_id . '/complete');
+    print ajax_render($commands);
+    drupal_exit();
+}
+
+function custom_module_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+	// added theme function
+	//dpm($entity_form);
+	$entity_form['#theme'][] = 'inline_entity_form_entity_form_' . $entity_form['#entity_type'] . '_' . $entity_form['#bundle'];
+}
+
+/**
+ * Implements hook_element_info_alter()
+ * Add additional (!) custom process function
+ */
+function custom_module_element_info_alter(&$type) {
+	if (isset($type['geofield_proximity']['#process'])) {
+		$type['geofield_proximity']['#process'][] = 'custom_module_proximity_element_process';
+	}
+}
+/*
+ * Alter geofield views exposed form, remove distance and unit
+*/
+function custom_module_proximity_element_process($element, &$form_state, $form) {
+	$element['distance']['#access'] = FALSE;
+	$element['unit']['#access'] = FALSE;
+	unset($element['origin']['#prefix']);
+	return $element;
+}
+
+/**
+ * Implements hook_theme(). FOR INLINE ENTITY FORMS
+ */
+function custom_module_theme($existing, $type, $theme, $path) {
+	return array(
+		'inline_entity_form_entity_form_commerce_product_yacht' => array(
+		  'arguments' => array(
+				'form' => NULL,
+				),
+		   'template' => 'inline-entity-form-entity-form-commerce-product-yacht',
+		   'path' => drupal_get_path('theme', 'evolve') . '/templates/inline entity',
+		   'render element' => 'form',
+		),
+		'commerce_checkout_form_checkout' => array(
+		  'arguments' => array(
+			  'form' => NULL,
+		  ),
+		  'template' => 'commerce-checkout-form-checkout',
+		  'path' => drupal_get_path('theme', 'evolve') . '/templates/checkout',
+		  'render element' => 'form',
+		),
+		'commerce_checkout_form_complete' => array(
+		  'arguments' => array(
+			  'form' => NULL,
+		  ),
+		  'template' => 'commerce-checkout-form-complete',
+		  'path' => drupal_get_path('theme', 'evolve') . '/templates/checkout',
+		  'render element' => 'form',
+		),
+		'commerce_cart_add_to_cart_form' => array(
+		  'arguments' => array(
+			  'form' => NULL,
+		  ),
+		  'template' => 'commerce-cart-add-to-cart-form',
+		  'path' => drupal_get_path('theme', 'evolve') . '/templates/commerce',
+		  'render element' => 'form',
+		),
+		'block_admin_configure' => array(
+		  'arguments' => array(
+			  'form' => NULL,
+		  ),
+		  'template' => 'block-admin-configure',
+		  'path' => drupal_get_path('theme', 'evolve') . '/templates/block',
+		  'render element' => 'form',
+		)
+	);
+}
+/**
+ * Check if mobile
+ */
+function isMobile() {
+    return preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
+}
+?>
